@@ -15,8 +15,9 @@ type Error interface {
 
 // StatusError represents error with http status code.
 type StatusError struct {
-	Code    int    `json:"code"`
-	Message string `json:"message"`
+	Code     int      `json:"code"`
+	Message  string   `json:"message,omitempty"`
+	Messages []string `json:"messages,omitempty"`
 }
 
 // Error allows StatusError to satisfy the error interface.
@@ -30,9 +31,14 @@ func (se StatusError) Status() int {
 }
 
 // NewError creates new error instance.
-func NewError(code int, message string) Error {
-	return &StatusError{
-		Code:    code,
-		Message: message,
+func NewError(code int, messages ...string) Error {
+	statusErr := StatusError{Code: code}
+
+	if len(messages) == 1 {
+		statusErr.Message = messages[0]
+	} else {
+		statusErr.Messages = messages
 	}
+
+	return statusErr
 }
